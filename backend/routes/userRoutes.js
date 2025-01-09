@@ -2,6 +2,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { redeemTree } = require('../controllers/userController');
+const { verifyToken } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 
 const router = express.Router();
@@ -53,6 +55,31 @@ router.post('/login', async (req, res) => {
   }
 });
 
+//redeem-tree
+router.post('/redeem-tree', verifyToken, async (req, res) => {
+  try {
+      const { treeType, pointsRequired } = req.body;
+      const userId = req.user.id; // Extracted from token
+
+      // Find user by `userId`
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ msg: "User not found" });
+
+      // Check if user has enough points
+      if (user.points < pointsRequired) {
+          return res.status(400).json({ msg: "Insufficient points" });
+      }
+
+      // Deduct points and add tree to redeemedTrees
+      user.points -= pointsRequired;
+      user.redeemedTrees.push({ treeType, pointsUsed: pointsRequired });
+      await user.save();
+
+      res.json({ msg: "Tree redeemed successfully", user });
+  } catch (err) {
+      res.status(500).json({ msg: "Server Error" });
+  }
+});
 
 // User Registration Route
 router.post('/register', async (req, res) => {

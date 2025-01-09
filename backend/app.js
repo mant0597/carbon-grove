@@ -7,7 +7,7 @@ const authRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');  // Add the new leaderboard route
-
+const userRoutes = require('./routes/userRoutes');
 dotenv.config();
 
 const app = express();
@@ -19,7 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/admin', leaderboardRoutes);  // Admin leaderboard route
-
+app.use('/api/user', userRoutes);
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to the database"))
